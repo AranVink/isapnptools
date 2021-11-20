@@ -1,0 +1,98 @@
+Regression Test Plan for pnpdump
+--------------------------------
+Document version ID:  $Header: /home/omer/work/cvs_repository/capital/isapnptools/test/testplan.txt,v 1.2 1999/11/07 12:20:41 omer Exp $
+
+1. Hardware and operating system/distribution:
+   - computer with 0 ISA PnP cards
+   - computer with 1 ISA PnP card
+   - computer with two ISA PnP cards
+   The cards to be used should cover the following resources:
+       IRQ
+       I/O ports
+       DMA
+       Memory
+       Exactly one + More than one logical card per physical card
+   - computer with one or more cards, such that one of them yields
+     bad checksum value (to test --ignorecsum).
+
+   - Exercise using both 2.0.x (2.0.36) and 2.2.x kernels (this will
+     cover the effect of different formats of /proc "files").
+
+   We'll not exercise under DOS/DJGPP or under OS/2.
+   We'll exercise only one __GLIBC__ setting (undefined / 1 / >=2).
+   We'll not exercise under undefined REALTIME or with nonstandard
+	 settings of NEEDSETSCHEDULER,NEEDNANOSLEEP.
+
+2. Different parameters of the pnpdump command line:
+   readport - missing
+              < 0x203
+              > 0x3FF
+              larger than the actual readport used by default
+       (We'll NOT check decimal values processing)
+   devs - same as # of cards found by the BIOS
+          less than the above
+          more than the above
+              ALSO:
+          readport used by the BIOS
+          different readport setting
+
+   -c, --config, no option
+   -d, --dumpregs, no option
+   -D, --debug-isolate, no option
+   -i, --ignorecsum, no option
+   -r, --reset, no option
+       --masks, no option
+   -t, --max-realtime
+         - no option
+         - value of 1 second
+         - value of 0 (infinite)
+   -s, --script
+         - none
+         - to stdout (NO!  Runs automatically the shell script!)
+         - to a file
+   -v, --version
+
+3. Different contents of isapnp.gone
+   IO (default size, size=8, size > 8)
+   IRQ n
+   DMA n
+   MEM base,size
+
+   For IRQ and DMA, exercise:
+    - none
+    - resource which is already mentioned in a /proc "file"
+    - resource not used by ISA PnP cards
+    - resource used by an ISA PnP card
+    - all resources used by an ISA PnP card (make it hungry)
+
+   For IO:
+    - none
+    - one range not used by ISA PnP cards
+    - one range already marked as used in a /proc "file"
+    - one range used by a card
+    - all ranges used by a card
+
+   For MEM:
+    - none
+    - one range not used by ISA PnP cards
+    - one range used by a card
+    - all ranges used by a card
+
+4. Output to be captured:
+    - stdout
+    - stderr
+    - sometimes, a --script=filename
+
+CONSTRUCTION AND USE OF TEST CASES
+----------------------------------
+Each test case will be a single file divided into the following
+sections:
+1. pnpdump command line arguments
+2. isapnp.gone contents to be used
+
+A reference version of pnpdump (pnpdump-1.19) will be available
+for comparing its results to those of the pnpdump build being tested.
+!!!!!!!!!!!!!!!!!
+
+
+----====*====----

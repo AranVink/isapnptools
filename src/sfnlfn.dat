@@ -1,0 +1,13 @@
+callback.c:callbacks.c
+isapnp_m.l:isapnp_main.l
+isapnp_m.c:isapnp_main.c
+pnp_acce.c:pnp-access.c
+pnp_sele.c:pnp-select.c
+pnpdumpm.c:pnpdump_main.c
+res_acce.c:res-access.c
+callback.o:callbacks.o
+isapnp_m.o:isapnp_main.o
+pnp_acce.o:pnp-access.o
+pnp_sele.o:pnp-select.o
+pnpdumpm.o:pnpdump_main.o
+res_acce.o:res-access.o

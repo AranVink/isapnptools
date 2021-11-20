@@ -1,0 +1,272 @@
+	ISA PnP utilities Version 1.27
+	==============================
+
+These programs allow ISA Plug-And-Play devices to be configured
+on a Linux machine.
+
+This program is suitable for all systems, whether or not they
+include a PnP BIOS. In fact, a PnP BIOS adds some complications
+because it may already activate some cards so that the drivers
+can find them, and these tools can unconfigure them, or change
+their settings causing all sorts of nasty effects. If you have
+(for example) plug and play network cards that already work, I
+suggest you read the manual page isapnp.conf(5) on the format
+of the configuration file very carefully.
+
+See the example for a dataflex voice fax modem and NE2000 clone
+PnP card in README.modules. See the section below on Drivers and
+MODULES for more background information. For even more hints etc
+see the FAQ at:
+
+ http://www.roestock.demon.co.uk/isapnptools/isapnpfaq.html
+
+The commands have been taken from the Plug and Play ISA specification
+Version 1.0a, widely available on the net.
+(ftp://ftp.microsoft.com/developr/drg/Plug-and-Play/Pnpspecs/PNPISA.EXE
+- this is a self-extracting DOS archive of PNPISA.DOC - a word 6
+document. If Word 6, or any other word processor capable of handling
+Word 6 files, is not available, use the freely redistributable viewer
+wordview which comes on the Win95 CD).
+
+See NEWS for a list of changes from the previous version.
+
+See doc/README.OS2 for description of OS2 stuff.
+
+Installation intructions
+========================
+This package now uses autoconf and automake. Generic installation
+instructions are in the file INSTALL.
+
+*READ* the documentation in the doc directory.
+
+Summary:
+
+To get a list of configurable things type
+
+./configure --help
+
+Typically you will do
+
+./configure --prefix=/usr --exec-prefix=
+make CFLAGS="-O2 -Wall"
+make install
+
+Edit the GONEFILE (/etc/isapnp.gone by default). There is an example
+in the etc directory.
+
+Edit the configuration file (usually /etc/isapnp.conf). You can
+generate an initial one using
+
+pnpdump -c > /etc/isapnp.conf
+
+Edit the computer bootup scripts to run isapnp on boot, and to install
+whatever kernel driver modules you require. See the documentation in
+doc for more details.
+
+If isapnp reports an error *READ* the isapnp man page as it explains
+each error in some detail.
+
+Documentation
+=============
+See the doc directory. It includes the manual pages, and a text
+version of the latest FAQ when the release was made.
+
+Format of pnp configuration file:
+=================================
+See the manual page isapnp.conf.5.
+
+If you have a problem:
+======================
+Please start by looking at ALL the documentation provided, including
+the FAQ, then look at the isapnptools website at
+http://www.roestock.demon.co.uk/isapnptools/ for the very latest
+information.
+
+If you find a bug, please report it, ideally with a patch to fix it,
+see 'Contacting the Author' at the end.
+
+Drivers and MODULES
+===================
+Note that boards first configured by isapnp are not visible to the
+kernel during boot up. This means that drivers for the boards must be
+loaded as modules after the board has been configured, so that they
+can locate the board. See doc/README.modules for an example.
+
+This doesn't apply to serial cards, because setserial can be used to
+configure the serial ports after the kernel has booted.
+
+Also, IDE devices can be initialised after the kernel boots by
+configuring IDE-PCMCIA in the kernel. Then writing a module to
+initialise the device after running isapnp.
+See README.ide and /usr/src/linux/Documentation/Configure.help.
+
+An alternative method is to use initrd to run isapnp before booting
+the main kernel. See doc/README.initrd and
+/usr/src/linux/Documentation/initrd.txt.  This may be particularly
+applicable for IDE devices attached to PnP cards.  I hope to
+experiment with initrd sometime for my network card...  if you've
+already done it please tell me how.
+
+If you boot Linux from DOS using loadlin, you can also run the DOS
+version of isapnp before booting Linux. This would allow you to use
+normal compiled in drivers.
+
+If the kernel needs rebooting after configuration, because the drivers
+are not modules, it may be possible to do this automatically in your
+bootup scripts: use an isapnp.conf file which dumps the board
+configuration registers and tests the the output.
+If the board(s) haven't been configured, configure them with the
+configuration isapnp.conf file and reboot.
+If the boards have been configured, continue the boot normally.
+You may want to take precautions to prevent the kernel continuously
+rebooting if something goes wrong...
+
+isapnp for debugging.
+=====================
+This example shows how the PEEK command may now be used with the standard
+configuration settings to dump the actual board configuration register
+settings, for example, the script:
+
+#(DEBUG)
+(READPORT 0x3bb)
+#(READPORT 0x203)
+(ISOLATE PRESERVE)
+(IDENTIFY *)
+(CONFIGURE DFX0000/1493
+        (LD 0
+                (IO 0 (PEEK)) # Dump Port 0
+                (IO 1 (PEEK)) # Dump Port 1
+                (IO 2 (PEEK)) # Dump Port 2
+                (INT 0 (PEEK)) # Dump INT 0
+                (DMA 0 (PEEK)) # Dump DMA 0
+                (DMA 1 (PEEK)) # Dump DMA 1
+                (MEM 0 (PEEK)) # Dump MEM 0
+                (REG 0x60 (PEEK)) (REG 0x61 (PEEK)) # Dump Port 0
+                (REG 0x62 (PEEK)) (REG 0x63 (PEEK)) # Dump Port 1
+                (REG 0x64 (PEEK)) (REG 0x65 (PEEK)) # Dump Port 2
+                (REG 0x70 (PEEK)) (REG 0x71 (PEEK)) # Dump INT 0
+                (REG 0x74 (PEEK)) # Dump DMA 0
+                (REG 0x75 (PEEK)) # Dump DMA 1
+))
+(WAITFORKEY)
+
+produces the following with my dataflex modem:
+
+Board 1 has Identity 6e 00 00 05 d5 00 00 d8 10:  DFX0000 Serial No 1493 [checksum 6e]
+Peek(DFX0000/1493)[0][0x60](IO  0) is 0x03E8, (3,232)
+Peek(DFX0000/1493)[0][0x62](IO  1) is 0x0000, (0,0)
+Peek(DFX0000/1493)[0][0x64](IO  2) is 0x0000, (0,0)
+Peek(DFX0000/1493)[0][0x70](INT 0) is 0x0C02, (12,2)
+Peek(DFX0000/1493)[0][0x74](DMA 0) is 0x04, (4)
+Peek(DFX0000/1493)[0][0x74](DMA 0) is 0x04, (4)
+Peek(DFX0000/1493)[0][0x40](MEM 0) is 0x0000000000000000, (0,0,0,0,0,0,0,0)
+Peek(DFX0000/1493)[0][0x60](-REG-) is 0x03, (3)
+Peek(DFX0000/1493)[0][0x61](-REG-) is 0xE8, (232)
+Peek(DFX0000/1493)[0][0x62](-REG-) is 0x00, (0)
+Peek(DFX0000/1493)[0][0x63](-REG-) is 0x00, (0)
+Peek(DFX0000/1493)[0][0x64](-REG-) is 0x00, (0)
+Peek(DFX0000/1493)[0][0x65](-REG-) is 0x00, (0)
+Peek(DFX0000/1493)[0][0x70](-REG-) is 0x0C, (12)
+Peek(DFX0000/1493)[0][0x71](-REG-) is 0x02, (2)
+Peek(DFX0000/1493)[0][0x74](-REG-) is 0x04, (4)
+Peek(DFX0000/1493)[0][0x75](-REG-) is 0x04, (4)
+
+The isapnp library
+==================
+See doc/README.lib, which describes the library created by the changes
+from isapnptools-1.19 to isapnptools-1.20. If you have problems
+with the library being released under the GPL, contact me in the
+first instance to discuss (it is unlikely to change though due
+to contributions from other parties).
+
+Cross-compiling
+===============
+If you want to build a dos binary, and you have built a cross-compiler
+for dos, you can build it in a similar way to how I do:
+
+CC="gcc -b i386-go32-msdos" configure --disable-realtime --disable-proc --disable-pci
+make GNUTARGET=coff-i386
+
+To make a.out binaries for a machine without PCI:
+CC="gcc -b i486-linuxaout" configure --disable-pci --prefix=/
+make
+
+Cross-compiling for other architectures is similar. See the gcc and
+binutils documentation for details.
+
+Bugs
+====
+I haven't tested the Memory setting stuff, as I haven't
+got a card with suitable drivers. If it doesn't work, tell me,
+and work around using poke, which I have tested.
+
+Newer PCs don't always work, I now think this is due to faulty
+hardware, see the FAQ for details.
+
+The DOS binary should be extended to allow access to PCI configuration
+information through BIOS calls (rather than /proc/pci).
+
+Note
+====
+These programs must run as root, as they need unrestricted access
+to the computer IO addresses. This could cause lots of problems,
+so use with care. DO NOT MAKE THESE PROGRAMS SUID root !
+
+This is particularly important now that pnpdump (with certain options)
+uses popen() to invoke external programs.
+
+Copyright
+=========
+These programs are copyright P.J.H.Fox (fox@roestock.demon.co.uk)
+and distributed under the GPL (see COPYING).
+
+Warranty
+========
+There is NO WARRANTY for these programs.
+
+These programs have been compiled on my machine using gcc 2.7.2.3,
+flex 2.5.4 and linux 2.0.37, with libc-5.4.44 and they seem to work
+for me.
+
+However, due to the nature of these programs, they are very likely
+to completely screw up your computer: USE AT YOUR OWN RISK. But if
+you find them useful, or have some suggestions for improvement,
+please tell me, see 'Contacting the Author' below.
+
+Y2K
+===
+Here's my Y2K statement, for what it's worth:
+
+Programs in the isapnptools suite don't use dates, so there shouldn't
+be any problems; the only time functions used are for implementing
+delays and alarms. However, it depends whether the C library you link
+against has hidden date dependencies I guess.  I should remind you
+that isapnptools comes with NO WARRANTY.
+
+Mailing List
+============
+If you would like to receive announcements of new releases directly,
+(releases are normally announced to comp.os.linux.announce anyway),
+then send an email to isapnp-announce@roestock.demon.co.uk, with the
+subject "subscribe isapnp-announce", giving the details of your email
+address. By default, contributors of patches and other improvements
+will get added automatically (if I remember !).
+
+Contacting the Author
+=====================
+If mailing patches, bug reports or comments, please put 'isapnp'
+somewhere in the subject line, and mail to
+isapnp@roestock.demon.co.uk. See the website (in See also below) for
+lists of information required if you are expecting help. Due to the
+level of spam coming into this address, I reserve the right to bounce,
+or simply ignore, submissions that don't comply.
+
+See also
+========
+Latest information of isapnptools is available at the time of writing
+on my website: http://www.roestock.demon.co.uk/isapnptools/. This
+includes an FAQ, and the htmlised manual pages, so please refer to this
+first in the event of any difficulties.
+
+Peter Fox
+24-Mar-2007

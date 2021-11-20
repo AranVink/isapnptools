@@ -1,0 +1,29 @@
+README for OS2
+==============
+
+Kevin Brooks <kb10@onyx.net> has added some code to enable the use
+of isapnptools on OS2 systems. I have included his modifications
+in isapnptools-1.8. I don't have OS2, so can't verify that I've included
+everything.
+
+This is what he said about the changes..
+--------------------------------------------------------------------------
+
+After finding out what a joy your PnP Configuration Manager was, I decided
+to port it to O/S2. Yes I could get it to configure my card from its 
+config.sys file rather than having to run the PnP config manager I had got
+for dos, which incidently didn't work all the time. Unlike this one.
+
+
+This is the original PnP code as taken from the Red Hat site with a couple
+of "#defines" and the odd function definition to get it past emx under O/S2 
+Warp. 
+
+It was compiled using gcc version 2.5.7 and bound with emx 0.8h and flex work
+was carried out with flex 2.4.5.
+
+Note the REAL TIME stuff won't work with OS2 something to do with it not 
+having a kernel that is the same as a Linux 2 one >:^>
+
+Well done on the writing of such easily ported code.
+

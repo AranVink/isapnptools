@@ -1,0 +1,131 @@
+1.25 -> 1.26
+	* src/Makefile.am: Added sfnlfn.dat to EXTRA_DIST.
+
+	* src/sfnlfn.dat: new file mapping short file names to long file
+	names for files in the src directory. Used by the short-file-names
+	and long-file-names make targets.
+
+	* src/callbacks.c, src/cardinfo.c, src/pnp-access.c,
+	src/realtime.c, src/res-access.c, src/resource.c: Unused attribute
+	moved after inclusion of config.h to improve portability.  Added
+	alternate include file names for short file name systems.
+	
+	* src/iopl.c, src/pnp-select.c: Unused attribute moved after
+	inclusion of config.h to improve portability.
+
+	* src/release.c: added config.h.
+
+	* src/isapnp.c, src/isapnp_main.l, src/mysnprtf.c, src/pnpdump.c,
+	src/pnpdump_main.c: Added alternate include file names for short
+	file name systems.
+
+	* include/isapnp/Makefile.am: Added sfnlfn.dat to EXTRA_DIST.
+	
+	* include/isapnp/sfnlfn.dat: new file mapping short file names to
+	long file names for files in the include/isapnp directory. Used by
+	the short-file-names and long-file-names make targets.
+
+	* include/isapnp/iopl.h: Don't include inlines/pc.h for borland
+	compilers.
+
+	* include/isapnp/callbacks.h, include/isapnp/res-access.h: Added
+	alternate include file names for short file name systems.
+
+	* include/Makefile.am: Added config.bor to EXTRA_DIST.
+
+	* include/config.bor: new file to override configuration settings
+	for DOS real-mode compilers.
+	
+	* doc/Makefile.am: Removed dos-rm.zip from EXTRA_DIST.
+
+	* doc/README.borland: Rewritten to reflect the better integration
+	for isapnptools-1.26.
+
+	* configure.in: Update for 1.26.  Test for pnpdump.c which doesn't
+	change it's name.  Add --enable-sfn to allow compilation when
+	files have been renamed with short file names.  Add
+	--enable-static to allow compiling static binaries.
+
+	* acconfig.h: Add HAVE_SFN for --enable-sfn option. Add include
+	for config.bor with Borland compilers.
+
+	* Makefile.am: Add makeDOSr.bat to EXTRA_DIST.  Add targets
+	short-file-names and long-file-names for renaming files.
+	
+1.24 -> 1.25
+	* src/iopl.c: portability improvement - wrap include unistd.h
+
+	* src/isapnp_main.l: portability improvements - wrap include
+	unistd.h, (SetIOBaseReg, SetIOSize): use longs instead of
+	ints. (isapnp_main): Fix segmentation violation with -t
+	option. Fix incorrect program name identification when incorrect
+	number of arguments provided.
+
+	* src/pnpdump_main.c: (large): char array removed. (pnpdump_main):
+	Fix segmentation violation with -t option. (lengtherror):
+	rewritten to print data from resource struct. (printresource):
+	Changes to call new version of lengtherror().
+
+	* src/release.c: rewritten to include most of what was in release.h.
+
+	* src/res-access.c: (read_one_resource): initialise res->data if
+	len == 0. Fix off by one error when building progress report
+	string.
+
+	* src/resource.c: (alloc_system_resources): rename interrupt
+	variable interrupt_num.
+
+	* include/isapnp/pnp.h: Add DEBUG stuff for djgpp.
+
+	* include/isapnp/release.h: Contents moved to release.c, simply
+	declare the char arrays containing release information.
+
+	* include/isapnp/Makefile.am: rewritten - greatly simplified.
+
+	* doc/isapnpfaq.sgml: stuff added, see NEWS.
+
+	* doc/README.DOS: Added pointer to README.borland.
+
+	* doc/Makefile.am: Added README.borland to READMES, added
+	dos-rm.zip to EXTRA_DIST.
+
+	* AUTHORS: added Steve M. Robbins, and Jeremy Davis. Added
+	antispam warning about uce@ftc.gov.
+	
+1.23 -> 1.24
+	* acconfig.h: Added to distribution, removed NO_YY_UNPUT as use %option in isapnp_main.l
+
+	* src/pnpdump_main.c: (pnpdump_main): Local copy of getopt_long used
+	if not supported in system library, Fixed -s and -o options when
+	the relevant code is not compiled in. (o_file): Really have fixed
+	initialisation for glibc (wasn't in 1.23)
+
+	* src/isapnp_main.l: %option used to make scanner case insensitive and
+	get rid of compiler warnings. (isapnp_main): Local copy of
+	getopt_long used if not supported in system library. (yywrap): removed.
+
+	* src/realtime.c: (abandon, realtime_expired): Use RETSIGTYPE for
+	signal handler return type.
+
+	* src/getopt.c: New file.
+
+	* src/getopt1.c: New file.
+
+	* src/getopt.h: New file.
+
+	
+1.23
+	
+	* Project restructured to use autoconf/automake
+	  All sources affected.
+
+	* stdin changed to NULL in pnpdump_main.c to fix glibc-2.1 error.
+
+	* common callbacks in isapnp and pnpdump moved into callbacks.c
+
+	* Code to use now selected by HAVE_* rather than DJGPP, AXP, OS2 etc.
+
+	* Unused variables (arrays tmp and large) removed.
+
+	
+	

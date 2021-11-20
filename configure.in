@@ -1,0 +1,222 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(src/pnpdump.c)
+AC_REVISION($Revision: 0.5 $)
+AM_INIT_AUTOMAKE(isapnptools, 1.27)
+AM_CONFIG_HEADER(include/config.h)
+
+dnl Checks for programs.
+# AC_PROG_CXX
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_LIBTOOL
+
+dnl for executable extensions
+AC_EXEEXT
+
+dnl other support programs
+AM_PROG_LEX
+#AC_DECL_YYTEXT
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+
+dnl Checks for libraries.
+
+dnl Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS(malloc.h sys/time.h unistd.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+
+dnl Checks for library functions.
+AC_TYPE_SIGNAL
+AC_FUNC_VPRINTF
+AC_SUBST(LIBOBJS) # Shouldn't be necessary ?
+#AC_FUNC_ALLOCA
+#AC_FUNC_MALLOC
+#AC_FUNC_MEMCMP
+#AC_FUNC_REALLOC
+AC_CHECK_FUNCS(strncmp) # For getopt if required
+AC_CHECK_FUNCS(strdup strerror strtol strtoul nanosleep sched_setscheduler snprintf strncasecmp getdelim memcmp)
+AC_CHECK_FUNCS(iopl ioperm usleep delay _sleep2)
+AC_CHECK_FUNCS([alarm])
+AC_CHECK_FUNCS([memset])
+dnl check for getopt in standard library
+AC_CHECK_FUNCS(getopt_long , , [LIBOBJS="$LIBOBJS getopt.o getopt1.o"] ) 
+
+AC_ARG_ENABLE(
+	realtime,
+        [  --enable-realtime       enable realtime scheduling (default=yes)],
+	if test "$enableval" = yes
+	then	
+		AC_DEFINE(REALTIME,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-realtime\; use --help to show usage")
+		fi
+	fi,
+	AC_DEFINE(REALTIME,1)
+)
+
+AC_ARG_ENABLE(
+	proc,
+        [  --enable-proc           enable resource checks using /proc data (default=yes)],
+	if test "$enableval" = yes
+	then	
+		AC_DEFINE(HAVE_PROC,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-proc\; use --help to show usage")
+		fi
+	fi,
+	AC_DEFINE(HAVE_PROC,1) dnl
+	enable_proc=yes
+)
+
+AC_ARG_ENABLE(
+	pci,
+        [  --enable-pci            enable pci resource checks (default=yes)],
+	if test "$enableval" = yes
+	then	
+		if test "$enable_proc" = yes
+		then
+			AC_DEFINE(ENABLE_PCI,1)
+		else
+			AC_MSG_WARN("Cannot --enable-pci without --enable-proc")
+		fi
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-pci\; use --help to show usage")
+		fi
+	fi,
+	if test "$enable_proc" = yes
+	then
+		AC_DEFINE(ENABLE_PCI,1)
+	else
+		AC_MSG_WARN("--disable-proc implies --disable-pci")
+	fi
+)
+
+AC_ARG_ENABLE(
+      onreserr,
+      [  --enable-onreserr       enable abort on resource dump error (default=no)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(ABORT_ONRESERR,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-onreserr\; use --help to show usage")
+		fi
+	fi
+)
+
+AC_ARG_ENABLE(
+      always-report-activation,
+      [  --enable-always-report-activation  enable report activation regardless of (NAME ..) in isapnp (default=no)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(ALWAYSREPORTACTIVATION,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-always-report-activation\; use --help to show usage")
+		fi
+	fi
+)
+
+AC_ARG_ENABLE(
+      debug,
+      [  --enable-debug          enable debug code (default=no)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(DEBUG,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-debug\; use --help to show usage")
+		fi
+	fi
+)
+
+AC_ARG_ENABLE(
+      tag-debug,
+      [  --enable-tag-debug      enable tag debugging code (default=no)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(TAG_DEBUG,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-tag-debug\; use --help to show usage")
+		fi
+	fi
+)
+
+AC_ARG_ENABLE(
+      validate,
+      [  --enable-validate       enable validation (default=yes)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(WANT_TO_VALIDATE,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-validate\; use --help to show usage")
+		fi
+	fi,
+	AC_DEFINE(WANT_TO_VALIDATE,1)
+)
+
+AC_ARG_ENABLE(
+      dumpaddr,
+      [  --enable-dumpaddr       enable additional pnpdump output to show every valid address setting (default=no)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(DUMPADDR,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-dumpaddr\; use --help to show usage")
+		fi
+	fi
+)
+
+AC_ARG_ENABLE(
+      gonefile,
+      [  --enable-gonefile       set the location of the resources already used file (default="/etc/isapnp.gone")],
+	AC_DEFINE_UNQUOTED(GONEFILE,"$enableval")
+)
+
+AC_ARG_ENABLE(
+      sfn,
+      [  --enable-sfn            enable short file names, assumes source files have been renamed (default=no)],
+	if test $enableval = yes
+	then	
+		AC_DEFINE(HAVE_SFN,1)
+	else
+		if test "$enableval" != no
+		then
+			AC_MSG_ERROR("Invalid value for --enable-sfn\; use --help to show usage")
+		fi
+	fi
+)
+
+AC_ARG_ENABLE(
+	static,
+	[  --enable-static         compile to static binaries (default=no)],
+	if test $enableval = yes
+	then	
+		[LDFLAGS="$LDFLAGS -static"]
+	fi
+)
+
+AC_OUTPUT(include/Makefile include/isapnp/Makefile src/Makefile demos/Makefile doc/Makefile Makefile)

@@ -1,0 +1,54 @@
+#------------------------------------------------------------------
+#
+# /etc/isapnp.gone
+#
+#------------------------------------------------------------------
+#
+# $Id: isapnp.gone,v 0.0 1998/10/09 20:46:01 fox Exp $
+#
+# This file contains a list of ISA resources that are unavailable
+# for PnP allocation. This may be (for instance) because they are
+# standard motherboard resources, or because there is a non-PnP
+# ISA card using the resources, or a device driver hasn't been
+# loaded yet, so there is no sign of the resources being in use
+# in /proc/*
+#
+# This file should be editted to suit your local machine.
+#
+# Resources are:
+# IO base[, size] (default size 8 if ommitted)
+# IRQ n
+# DMA n
+# MEM base,size
+#
+#------------------------------------------------------------------
+#
+# Standard motherboard stuff
+#
+# COM1
+#
+IO 0x3f8,8
+IRQ 4
+#
+# COM2
+#
+IO 0x2f8,8
+IRQ 3
+#
+# Parallel
+#
+IO 0x378,2
+IRQ 7
+#
+# PS2 mouse
+#
+#IRQ 12
+#
+# Sound
+#
+#IO 0x220,16
+#IO 0x330,2
+#IO 0x388,4
+#IRQ 5
+#DMA 1
+#DMA 5

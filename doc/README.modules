@@ -1,0 +1,111 @@
+README.modules
+==============
+
+As an example of how to use isapnp to initialise some devices,
+using driver modules, consider what I do in my system.
+
+I have two PnP cards in my system, a modem (DFX0000/1493) and an
+ethernet card (EDI0119/236861364) (NE2000 clone).
+
+My /etc/isapnp.conf file looks like this:
+
+--------------------------------------------------------------------
+# LD n = Logical device, ie write to reg 7
+# IO n = IO descriptor n
+# BASE n = IO/Mem address
+# INT n = Interrupt req n
+# IRQ n = Interrupt level
+# MODE = line levels etc
+# ACT = Activate
+
+#(debug)
+#(IGNORECRC)
+(READPORT 0x3bb)
+(ISOLATE)
+(IDENTIFY *)
+# Card 1: (serial identifier 13 0e 1e 37 b4 19 01 89 14)
+# EDI0119 Serial No 236861364 [checksum 13]
+# Version 1.0, Vendor version 1.0
+# ANSI string -->PLUG & PLAY ETHERNET CARD€<--
+#
+# Logical device id EDI0119
+#     Device support I/O range check register
+#
+# Edit the entries below to uncomment out the configuration required.
+# Note that only the first value of any range is given, this may be changed if required
+# Don't forget to uncomment the activate (ACT Y) when happy
+
+(CONFIGURE EDI0119/236861364 (LD 0
+#     Compatible device id PNP80d6
+#     Logical device decodes 10 bit IO address lines
+#         Minimum IO base address 0x0240
+#         Maximum IO base address 0x03e0
+#         IO base alignment 32 bytes
+#         Number of IO addresses required: 32
+(IO 0 (BASE 0x0340))
+#     IRQ 3, 4, 5, 9, 10, 11, 12 or 15.
+#         High true, edge sensitive interrupt
+(INT 0 (IRQ 10 (MODE +E)))
+#     Memory is non-writeable (ROM)
+#     Memory is non-cacheable
+#     Memory decode supports high address
+#     memory is 8-bit only
+#     memory is shadowable
+#     memory is an expansion ROM
+#     Minimum memory base address 0x0c0000
+#     Maximum memory base address 0x0dc000
+#     Range base alignment mask 0xff4000 bytes
+#     Range length 16384 bytes
+# Choose UPPER = Range, or UPPER = Upper limit to suit hardware
+# (MEM 0 (BASE 0x0c0000) (MODE bu) (UPPER 0x0c4000))
+# (MEM 0 (BASE 0x0c0000) (MODE br) (UPPER 0x004000))
+(ACT Y)))
+# End tag... Checksum 0x00 (OK)
+
+(CONFIGURE DFX0000/1493 (LD 0 (IO 0 (BASE 0x3e8)) (INT 0 (IRQ 12 (MODE +E))) (ACT Y)))
+(WAITFORKEY)
+--------------------------------------------------------------------
+
+As you can see, the modem has been configured to use
+IO address 0x3e8 and interrupt 12, and the ethernet card
+has been configured to use IO address 0x340 and interrupt 10.
+
+So my bootup scripts need to tell the kernel drivers about this, which
+I do with the following commands:
+
+--------------------------------------------------------------------
+#
+# Install the PnP devices
+#
+isapnp /etc/isapnp.conf
+#
+# Configure the pnp devices: the modem
+#
+setserial /dev/ttyS2 irq 12 autoconfig
+setserial /dev/ttyS2 spd_vhi
+setserial /dev/ttyS2
+# Stop it chattering to itself
+stty -echo < /dev/ttyS2
+#
+# And the network card
+#
+insmod /usr/src/linux/modules/8390.o
+insmod /usr/src/linux/modules/ne.o io=0x340
+--------------------------------------------------------------------
+
+The address of the modem port is set by the device I use.
+Look in /usr/src/linux/drivers/char/serial.c. I use setserial
+to configure the interrupt.
+
+The address of the NE2000 clone is specified when loading the
+module, and it correctly probes for the interrupt during initialisation.
+
+This is done fairly early in the bootup sequence, before the devices
+are used. In my case, the commands are in rc.extra which is called
+from rc.multi just after mounting all disks and clearing /tmp etc.
+
+If you have PnP IDE interfaces, it may be appropriate to move the
+device and driver initialisation even earlier in the boot up sequence.
+
+If you want to know what scripts are executed during boot, look at
+/etc/inittab, and man inittab.

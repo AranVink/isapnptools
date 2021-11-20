@@ -1,0 +1,44 @@
+        libisapnp Version 1.21
+        ======================
+
+This document covers instructions for usage of the additions made
+for version 1.21 of the isapnptools package.
+
+1) To play with the demo programs, first build them by:
+
+   make demo
+   make demo2
+
+   Then become superuser, and run them as follows:
+   ./demo --scan | more
+   ./demo2
+
+   The demo programs are not automatically built when pnpdump and
+   isapnp are built.
+
+2) When building a new version of pnpdump, you may verify its output
+   against the output of a previous version of pnpdump as follows.
+   If you are in the isapnptools directory:
+   Become superuser, then
+
+   cd test
+   ls t*.dat | ./run_tests.pl /sbin/pnpdump | more
+
+   And inspect the output.  All tests should pass except for tests
+   17 and 18.  Those tests should fail because, and only because,
+   of difference in the version string.
+
+   The above assumes that the reference version, against which you
+   are comparing the newly-built version of pnpdump, exists as
+   /sbin/pnpdump.
+
+3) All libisapnp procedures, intended for access by your programs, are
+   declared and documented in the header file pnp-access.h
+
+4) COPYRIGHT NOTE:
+   I would like to have the library released under the LGPL.
+   However, at present, the library uses some code, which was GPLed.
+   So for the time being, the library and its source code files are
+   all available only under the more-strict GPL.
+
+                        --- End of README.lib ---

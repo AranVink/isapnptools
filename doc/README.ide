@@ -1,0 +1,162 @@
+README.ide
+==========
+
+There are two entries in this file, the first is a copy of a posting
+Jeff Epler made to the pnp-list, describing how he succeeded in
+getting his IDE port on a soundcard to work.  I think it's fairly
+clear...
+
+The basic concept is to make an empty module with the sole purpose
+of talking to the IDE driver to register a new set of addresses.
+There is no driver code in the module, it is like a simple setserial
+for the IDE driver.
+---------------------------------------------------------------------------
+
+Date: Mon, 6 Jan 1997 09:12:29 -0600
+From: jepler@inetnebr.com (Jeff Epler)
+To: pnp-list@redhat.com
+Subject: SB16 PnP success with IDE interface
+X-Mailing-List: <pnp-list@redhat.com> archive/latest/596
+
+Hi.  I've just succeeded in using the IDE interface on a SB16 PnP card,
+without resorting to initrd, rebooting after running isapnp, or other silly
+things.
+
+I'm using kernel 2.0.27, isapnp-1.8, and modutils 2.0.  I enabled
+CONFIG_BLK_DEV_IDE_PCMCIA (and compiled ide in-kernel, which is the only
+choice in 2.0.x), which is half the magic.  On the SB card I have a single
+cdrom drive, configured as the master.
+
+CONFIG_BLK_DEV_IDE_PCMCIA is misnamed, it allows for you to register
+and unregister ide interfaces after boot-time.  While it may have been
+useful only to the PCMCIA crowd at some time in the past, it's useful
+to us now, while we're waiting for complete pnp support in the kernel.
+In my case, the proper time to register the third ide interface (ide2)
+is right after I run isapnp.
+
+As nearly as I can figure, the way to call the routines ide_register and
+ide_unregister are by a module.  I enclose below the source for 'ide2mod.c'.
+Edit the definition of port, port1, and irq according to the resources you
+can allocate to your sb16's ide interface.  Then, compile it
+	gcc -DMODULE -c ide2mod.c -o ide2mod.o
+and put it somewhere that's available when you run isapnp.
+
+Then, (re-running isapnp to enable the ide interface if necessary), test it
+by running as root
+	insmod ide2mod.o
+you should see output like this:
+
+hde: NEC CD-ROM DRIVE:251, ATAPI CDROM drive
+ide2 at 0x1e8-0x1ef,0x3ee on irq 11
+ide_register(1e8, 3ee, 11)->2
+Initialization of ide2mod failed
+
+Don't be alarmed at the last line -- this merely means that the module is
+not staying resident in kernel space.  The three earlier lines are the
+important ones.  It shows that my cdrom drive has been recognized as
+/dev/hde and that the address for ide2 is correct.
+
+You can also unregister the interface with 
+	insmod ide2mod.o do_register=0
+which may be useful if you're fiddling around.
+
+In /etc/rc, it's run like this:
+	/sbin/isapnp /etc/isapnp.conf
+	/sbin/insmod /boot/ide2mod.o
+
+I hope this is of some use to someone out there.  If you have any
+questions or suggestions, please mail them to jepler@inetnebr.com, or just
+reply on the list.
+
+Jeff
+
+----------------------------------- ide2mod.c -----------------------------
+#define MODULE
+
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+
+int port=0x1e8;
+int port1=0x3ee; /* usually port + 0x206 for some reason */
+int irq=11;
+int index=2;
+int do_register=1;
+int res;
+
+init_module() {
+	if (do_register) {
+		printk("ide_register(%x, %x, %d)->%d\n",
+			port, port1, irq,
+			res=ide_register(port, port1, irq));
+	} else {
+		printk("ide_unregister(%d)->%d\n",
+			res=index, ide_unregister(index));
+	}
+	return res;
+}
+
+cleanup_module() {
+}
+---------------------------- end -- ide2mod.c -----------------------------
+
+----------------------------------- part of /etc/isapnp -------------------
+#
+# Logical device id CTL2011
+#
+# Edit the entries below to uncomment out the configuration required.
+# Note that only the first value of any range is given, this may be changed if required
+# Don't forget to uncomment the activate (ACT Y) when happy
+
+(CONFIGURE CTL002b/1079828 (LD 1
+#     Compatible device id PNP0600
+#     ANSI string -->IDE<--
+	(INT 0 (IRQ 11 (MODE +E)))
+	(IO 0 (BASE 0x01e8))
+	(IO 1 (BASE 0x03ee))
+	(ACT Y)
+))
+---------------------------- end -- part of /etc/isapnp -------------------
+
+###########################################################################
+
+The second idea comes from a mail from Duncan John Fyfe <djf95@aber.ac.uk>
+this is from way back in June 1998... I've added my comments in a reply to
+him in [].
+
+Having nothing better to do with my time over the weekend I decided to see if
+there was an easier way of getting the IDE interface on my Soundblaster 32 pnp
+to work without having to resort to initrd or pcmcia tools.
+
+My set up is as follows:
+
+bootstrap: LILO
+kernel version: 2.1.103 (now 2.1.105 and still working)
+isapnptools: version 1.11
+
+IDE HDD 1 = hda (ide1)
+IDE HDD 2 = hdc (ide2)
+IDE/ATAPI CDROM = hdg (ide3) - The soundblaster IDE interface.
+
+and my problem was one of isapnp scuppering ide3 when it activated the
+card ie. If I didn't run isapnp I could access the CDROM but get no sound while
+running isapnp would give me sound but result in those ever fateful status=0xff.
+.. errors should I try to mount the CDROM.
+
+[ Later versions of isapnptools should allow you to fiddle with cards without   ]
+[ resetting those in use. You might like to try that and tell me how you get on.]
+ 
+After a few hours of mucking about it came down to passing the following as
+boot parameters to LILO (using append="..."):
+
+        "ide3=<appropriate values> hdg=cdrom hdh=none ide3=reset"
+
+<appropriate values> can be found in "linux-source/Documentation/ide.txt". I
+cannot remember them off hand at the moment.
+Now when isapnp activates the Soundblaster I get a single complaint about
+status and unexpected irqs and everything works.
+
+I'm not going to guarentee this will work for everyone but it might be worth a
+try especially if it saves a kernel recompile.  As you can probably guess, if
+your going to try it use parameters appropriate to your set up (hdi, hdj...)
+and don't blame me if things go wrong.

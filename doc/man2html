@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# Brute force script to convert isapnptools man pages to html.
+#
+# Use: man2html *.[58]
+#
+while true
+do
+	SOURCE=$1
+	if test -z "$SOURCE"
+	then
+#		echo "Please supply a file to process"
+		exit
+	fi
+	DEST=`basename $SOURCE`.html
+	cat $SOURCE \
+	| sed 's/</\&lt;/g' \
+	| sed 's/>/\&gt;/g' \
+	| sed 's+\\-+-+g' \
+	> $SOURCE.tmp1
+	SOURCE=$SOURCE.tmp1
+	if test "$1" = "isapnp.conf.5"
+	then
+		# Have to munge IDENTIFY-FORMAT to prevent IDENTIFY screwing it up
+		for kw in ACT BASE CHANNEL CHECK CONFIGURE CSN DEBUG DMA IdEnTiFoRmAt IDENTIFY IGNORECRC INT IO IRQ ISOLATE LD MEM MODE PEEK POKE READPORT REG UPPER VERIFYLD WAITFORKEY SIZE NAME CONFLICT VERBOSITY
+		do
+			cat $SOURCE | sed 's/IDENTIFY-FORMAT/IdEnTiFoRmAt/g' \
+			| sed "/^[\\\\ ][ f][#B]/!s/\<\($kw\)\>/<a href=\"#\1\">\1<\/a>/g" \
+			| sed "/^[\\\\ ][ f][#B]/!s/\\\\fB\($kw\)\\\\fP/<a href=\"#\1\">\1<\/a>/g" \
+			| sed "/^\\\\fB($kw/s/\<\($kw\)\>/<a name=\1>\1<\/a>/" \
+			| sed 's/IdEnTiFoRmAt/IDENTIFY-FORMAT/g' > $SOURCE.tmp
+			mv $SOURCE.tmp $SOURCE
+		done
+	fi
+	cat $SOURCE \
+	| sed '/DESCRIPTION/,$ s/\<\([a-z]*tp:\/\/[^ ]*\)/<a href=\"\1\">\1<\/a>/g' \
+	| sed '/DESCRIPTION/,$ s/\<\([a-z]*@.*\.uk\)\>/<a href=\"mailto:\1\">\1<\/a>/g' \
+	| sed 's/\\f\([BI]\)\([^\]*\)\\f\([BI]\)\([^\]*\)\\fP\([^\]*\)\\fP$/<\1>\2<\/\1><\3>\4<\/\3><\1>\5<\/\1>/' \
+	| sed 's/\\fB\([^\]*\)\\fP/<B>\1<\/B>/g' \
+	| sed 's/\\fI\([^\]*\)\\fP/<I>\1<\/I>/g' \
+	| sed 's/\.I "\([^"]*\)"/<I>\1<\/I>/g' \
+	| sed 's/\\fC\([^\]*\)\\fR/<EM>\1<\/EM>/g' \
+	| awk 'BEGIN { intp = 0 } \
+	/^\.PP/ { if(intp == 3) printf("<P>\n"); next } \
+	/^\./ { if(intp == 3) { printf("</DD></DL>\n"); intp = 0; }} \
+	/^\.TP/ { intp = 1; next } \
+	{	if((intp == 0)||(intp == 3)) print $0; \
+		else if(intp == 1) { printf("<DL><DT>%s</DT>\n", $0); intp = 2; } \
+		else if(intp == 2) { printf("<DD>%s\n", $0); intp = 3; }}' \
+	| sed 's/^\.\\"\(.*\)$/<!--\1 -->/' \
+	| sed 's/^\.TH \(.*\) \(.*\) "\(.*\)" "\(.*\)".*$/<HTML><HEAD><TITLE>\4<\/TITLE><\/HEAD><BODY><CENTER><H1>The \1.\2 manual<\/H1><P>Dated \3<\/P><\/CENTER>/' \
+	| sed 's/^\.SH "\(.*\)".*$/<P><H1>\1<\/H1><\/P>/' \
+	| sed 's/^\.SH \(.*\)$/<P><H1>\1<\/H1><\/P>/' \
+	| sed 's/^\.SS "\(.*\)".*$/<P><H2>\1<\/H2><\/P>/' \
+	| sed 's/^\.SS \(.*\)$/<P><H2>\1<\/H2><\/P>/' \
+	| sed 's/\.br/<P>/g' \
+	| sed 's/\.BR/<P>/g' \
+	| sed 's/\\-/ ---/' \
+	| awk 'BEGIN { pre = 0 } \
+	/^ / { if(pre == 0) print "<PRE>"; pre = 1 } \
+	/^[^ ]/ { if(pre == 1) print "</PRE>"; pre = 0 } \
+	/^$/ { if(pre == 1) print "</PRE>"; pre = 0 } \
+	{ print $0 }' \
+	| sed '/SEE ALSO/,$ s/\<\([a-z.]*\)(\([0-9]*\))/<a href=\"\1.\2.html\">\1(\2)<\/a>/g' \
+	| sed 's/\\\\n/\\n/' > $DEST
+	cat >> $DEST <<EOF
+</BODY>
+</HTML>
+EOF
+	rm -f $SOURCE $SOURCE.tmp
+	shift
+done

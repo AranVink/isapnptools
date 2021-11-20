@@ -1,0 +1,22 @@
+#ifndef __CONFIG_BORLANDC__
+#define __CONFIG_BORLANDC__
+
+#if defined __TURBOC__ || defined __BORLANDC__
+#define __DJGPP__                     /* pretend to be DJGPP               */
+#define __attribute__(x)              /* ignore attribute tags             */
+#define inline                        /* different semantics so ignore     */
+#define HAVE_DELAY
+                                      /* the rest, djgpp has, but we don't */
+#undef HAVE_GETDELIM
+#undef HAVE_GETOPT_LONG
+#undef HAVE_IOPERM
+#undef HAVE_IOPL
+#undef HAVE_NANOSLEEP 
+#undef HAVE_SCHED_SETSCHEDULER 
+#undef HAVE_SNPRINTF 
+#undef HAVE_STRNCASECMP 
+#undef HAVE_USLEEP
+#undef HAVE_UNISTD_H 
+#endif
+
+#endif /* __CONFIG_BORLANDC__ */

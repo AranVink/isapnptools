@@ -1,0 +1,255 @@
+.\" Copyright (c) 1996, 1997 Peter Fox <fox@roestock.demon.co.uk>
+.\" This program is distributed according to the Gnu General Public License.
+.\" See the file COPYING in the isapnptools source distribution.
+.\"
+.\" $Id: isapnp.8,v 0.9 2001/01/06 21:15:45 fox Exp $
+.\"
+.TH ISAPNP 8 "05 Jan 2001" "isapnptools"
+.SH NAME
+isapnp \- Configure ISA Plug-and-Play devices.
+.SH SYNOPSIS
+\fBisapnp\fP [ \-\-help ] [ \-\-version ] \fIconffile\fP 
+.SH DESCRIPTION
+\fBisapnp\fP will carry out the instructions provided
+in the \fIconffile\fP to configure ISA PnP cards.
+\fBisapnp\fP must read in the entire configuration file
+successfully before it will execute the commands: this
+is to ensure the instructions are consistent and valid.
+.br
+The format of the configuration file is described
+in \fBisapnp.conf(5)\fP.
+
+.br
+In version 1.16 and later of \fBisapnptools\fP, \fBisapnp\fP
+checks resources are available as the devices are configured.
+If there is a conflict, a diagnostic message is given, and
+the program can be made to abort if required by placing the
+appropriate settings in the configuration file.
+
+.br
+In version 1.18 and later of \fBisapnptools\fP, \fIconffile\fP
+may be '-', meaning read the configuration file from stdin.
+
+.br
+\fBisapnp\fP will run with real-time scheduling if possible to achieve
+the required IO timings. This will lock out all normal programs while
+it executes. In version 1.19 and later of \fBisapnptools\fP,
+\fBisapnp\fP will only run in this mode for 5 seconds, it then reverts
+to standard scheduling like any other program. Previous versions
+should only be run from a standard console as ^C will kill it from
+there. If you run the command remotely (and X counts as remote), you
+will not be able to kill it as no other programs can run.
+
+.SS Options
+.TP
+.I "\-h, \-\-help"
+Show a help summary.
+.TP
+.I "\-v, \-\-version"
+Print the isapnptools version number on stderr.
+
+.SH ERRORS
+If the configuration file cannot be opened, the program
+aborts immediately with a suitable message.
+
+.br
+If an error occurs later, a message is printed to standard error in
+the form:
+
+.br
+\fIfile\fP:\fIlineno\fP -- \fIWarning/Fatal\fP - \fImessage\fP
+
+where
+.TP
+\fCfile\fR
+The configuration file being read ('-') for stdin.
+.TP
+\fClineno\fR
+The line number that the error occured at (or noticed).
+.TP
+\fCWarning/Fatal\fR
+Warning if the error was not serious and execution can continue,
+Fatal if the program cannot proceed.
+.TP
+\fCmessage\fR
+The error message, hopefully meaningful, see below.
+
+.TP
+\fCUnable to allocate memory for action list processing\fR
+
+The program has run out of memory and will abort. Fit more memory, or
+add more swap space. This is extremely unlikely as isapnp is normally
+run during boot up, when there are no users logged on.
+
+.TP
+\fCISOLATE called twice, or after CSN - clearing board count\fR
+
+You had an (ISOLATE..) after a previous occurance of (ISOLATE..) or
+(CSN..).  The program will rescan for boards. You should fix your
+script to only scan for boards once, by removing one of the above
+statements.
+.TP
+\fCIRQ2 is not a valid selection, changing it to IRQ9 (See clarifications 4.6.2)\fR
+
+Your configuration file attempted to configure a board to use
+IRQ2. This is invalid according to the clarifications to the PnP ISA
+spec v1.0a, and should be changed to use IRQ9, which has been
+done. You should change your configuration file to use IRQ9 in the
+first place.
+.TP
+\fCresource conflict allocating IRQx (see ...)\fR
+
+Your configuration file has attempted to program a board to use an IRQ
+line which is already used by something else. The see ... bit tells
+you where the IRQ line was first flagged as being in use. Change the
+script to use a different IRQ line, or fix the information being
+provided if the line really isn't already used.
+.TP
+\fCresource conflict allocating n bytes of IO at x (see ...)\fR
+
+Your configuration file has attempted to program a board to use IO
+ports which are already used by something else. The see ... bit tells
+you where the ports were first flagged as being in use. Change the
+script to use different ports, or fix the information being provided
+if the ports really aren't already used.
+.TP
+\fCIO range check attempted while device activated\fR
+
+Your configuration file has attempted to carry out an IO range check
+on a device which has already been configured and activated. You must
+either not attempt the check, or deactivate the device before the
+check. This error is a sign that you are on shakey ground. If the
+device is already activated, and you are running isapnp for the first
+time, then some other program has already activated the device (may be
+the BIOS, or some of the cleverer kernel drivers). You probably
+shouldn't be attempting to configure the device at all. There could
+already be drivers accessing the card.
+.TP
+\fCIO range check failed for n bytes of IO at x\fR
+
+The IO range check failed. This is a sign that there is a conflict of
+port addresses with some other device. Reassign the IO ports for this
+device (or the other one if you know what is is and how to do it).
+.TP
+\fCresource conflict allocating DMAx (see ...)\fR
+
+Your configuration file has attempted to program a board to use a DMA
+line which is already used by something else. The see ... bit tells
+you where the DMA line was first flagged as being in use. Change the
+script to use a different DMA line, or fix the information being
+provided if the line really isn't already used.
+.TP
+\fCresource conflict allocating Memory at a (see ...)\fR
+
+Your configuration file has attempted to program a board to use memory
+addresses which are already used by something else. The see ... bit
+tells you where the addresses were first flagged as being in
+use. Change the script to use different addresses, or fix the
+information being provided if the addresses really aren't already
+used.
+
+.br
+The following messages may also occur:
+.TP
+\fCREALTIME operation timeout exceeded - Switching to normal scheduling\fR
+
+The program has been running for more than 5 seconds, so something is
+probably wrong. Rather than lock up your machine, it is switching out
+of real-time mode so that other programs can run again. The program will
+now probably run slower. If this message occurs, you may want to kill
+isapnp.
+.TP
+\fCCouldn't clear real-time scheduling, may continue to use all CPU for a while\fR
+
+The program has been running for more than 5 seconds, but the attempt
+to leave real-time mode failed (impossible !), so there will be a
+further 5 second delay, then if it hasn't finished by then the program
+will kill itself.
+.TP
+\fCTime expired - aborting program\fR
+
+The above happened (even though it's impossible !). The program is
+killing itself.
+.TP
+\fCPort address xx (0x..) out of range 0x203..0x3ff\fR
+
+You have provided an invalid READPORT address - fix it.
+.TP
+\fCREADPORT not set\fR
+
+You have not specified a READPORT, and not done an (ISOLATE..) which
+would find one, so the program cannot proceed. Either specify a READPORT
+or carry out an (ISOLATE..).
+.TP
+\fCRead port x cannot be allocated - resource conflict (see ...)\fR
+
+The READPORT is already in use. Choose another.
+.TP
+\fCTimeout attempting to read resource data - is READPORT correct ?\fR
+
+The status bit to signal the resource data was valid never got set,
+this could be due to a conflict with your choice of READPORT address,
+try another.
+.TP
+\fCLD setting verify failed, this may not be a problem. Try adding (VERIFYLD N) to the top of your script\fR
+
+Reading back the logical device selection register failed. It appears
+some boards do this if you access the devices in the wrong order. Do
+like it says, and add (VERIFYLD N) to the top of your script and see
+if the board configures ok.
+.TP
+\fCCan only poke bytes\fR
+
+You've tried to poke a value outside the range 0..255. Fix your
+script.
+.TP
+\fCDon't know what to do with ... on or around line x\fR
+
+You've got a syntax error somewhere. If the word is a valid command,
+you've probably got braces not matching. Fix your script.
+.TP
+\fCUnable to get io permission for WRITE_DATA\fR
+
+You are not superuser. Only superuser has the required permissions to
+run isapnp.
+.TP
+\fCnanosleep failed\fR
+
+Impossible ! If it happens, the program will to run in real-time mode.
+
+.SH FILES
+.TP
+\fC/sbin/isapnp\fR
+The executable.
+.TP
+\fC/etc/isapnp.conf\fR
+The standard place for the \fIconffile\fP.
+.TP
+\fC/etc/isapnp.gone\fR
+The standard place for describing resources that are unavailable,
+but not flagged as such in /proc/* etc. The format of this file
+is explained in the example provided with \fBisapnptools\fP.
+.SH BUGS
+Check http://www.roestock.demon.co.uk/isapnptools/ for latest
+information and FAQ.
+
+If you think you have found one not mentioned in the latest version,
+please send a report to isapnp@roestock.demon.co.uk.
+.SH WARNING
+This program can reset all your Plug-and-Play devices.
+It can also lock up your machine.
+Use at your own risk.
+.SH AUTHOR
+\fBisapnp\fP has been written by Peter Fox <fox@roestock.demon.co.uk>,
+the creator and maintainer of isapnptools.
+.SH AVAILABILITY
+The latest version of the sources may be obtained by ftp from
+ftp://ftp.demon.co.uk/pub/unix/linux/utils
+.br
+Or follow the pointer from my web page at
+http://www.roestock.demon.co.uk/
+.SH REFERENCES
+Plug and Play ISA Specification, Version 1.0a, May 5, 1994.
+Available from ftp://ftp.microsoft.com/developr/drg/Plug-and-Play/Pnpspecs
+.SH "SEE ALSO"
+pnpdump(8), isapnp.conf(5)

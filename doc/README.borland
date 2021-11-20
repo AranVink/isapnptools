@@ -1,0 +1,41 @@
+Borland's Turbo C and Borland C (only version 3 tested) can be used to
+compile DOS real mode versions of isapnp.exe and pnpdump.exe
+
+This is done by pretending to be DJGPP with a few minor adjustments.
+The main difference is that Borland's compilers only support short file
+names (and those names can NOT have a dash - in them).  Additionally,
+a few functions are not available, but work arounds already exist as long
+as the proper defines are set.
+
+To compile using Borland's compilers:
+1) Simple method
+  - Run configure as if you were compiling for DJGPP, except add the options
+    --enable-sfn --enable-gonefile=/ISAPNP.GON
+    (where --enable-sfn enables short file name support and --enable-gonefile
+    is used only to change the default filename to an 8.3 compliant one)
+    i.e.
+    On a Linux machine (or other OS with LFN and common Unix Systems' programs)
+      CC="gcc -b i386-go32-msdos"
+      configure --disable-realtime --disable-proc --disable-pci --enable-sfn --enable-gonefile=/ISAPNP.GON
+      make short-file-names
+  - Then run makeDOSr.bat, (set CC=tcc or set CC=bcc first)
+    i.e.
+    On a DOS (or Windows) machine
+      set path=C:\BORLANDC\BIN;
+      set CC=bcc
+      makeDOSr
+    Or
+      set path=C:\TC\BIN
+      set CC=tcc
+      makeDOSr
+
+
+2) Manual method
+  - in src/ and include/isapnp/ directories change all filenames that are
+    longer than 8.3 to match the names in the sfnlfn.dat text file.
+  - make sure include/config.h exists (using include/config.h.in as a basis
+    if needed)  Be sure HAVE_SFN is defined, and any functions not supported
+    by Borlands compilers are undefined.
+  - then change back into main isapnp directory (parent of src, include, ...)
+    and run makeDOSr just like above steps.
+

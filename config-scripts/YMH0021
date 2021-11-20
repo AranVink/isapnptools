@@ -1,0 +1,4 @@
+echo "options sb io=${io_start[0]} dma=${dma[1]} dma16=${dma[0]} irq=${irq[0]}" >> /etc/conf.modules.isapnp
+echo "options opl3 io=${io_start[2]}" >> /etc/conf.modules.isapnp
+echo "sound: sb opl3" >> /lib/modules/`uname -r`/modules.dep.isapnp
+

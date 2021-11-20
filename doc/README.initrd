@@ -1,0 +1,69 @@
+README.initrd
+=============
+
+Here are some hints on using initrd to run isapnp before the
+kernel initialises its drivers.
+
+Initrd allows a kernel to execute scripts and programs before
+mounting the final root device. Using isapnp during this
+phase would allow the root device to be a PnP device,
+but the device drivers would still have to be compiled as modules.
+
+It is a copy (reproduced with permission) of an email Markus
+Gutschke sent me in reply to a comment he made on the pnp-list.
+The comment was
+
+------------------------------------------------------------------
+> Until PNP has been fully integrated into the kernel, you can use
+> isapnptools for configuring your devices. This also works for the boot
+> device. The trick is using a initial RAM disk that start isapnptools
+> before proceeding with the regular boot strapping. Read
+> "/usr/src/linux/Documentation/initrd.txt" for further information.
+------------------------------------------------------------------
+
+I haven't had chance to try it out yet, but it may help someone..
+
+------------------------------------------------------------------
+
+Date: Mon, 6 Jan 1997 22:08:11 +0100
+From: Markus Gutschke <gutschk@uni-muenster.de>
+To: Peter Fox <fox@roestock.demon.co.uk>
+Subject: Re: Using initrd for isapnptools
+
+Hi Peter,
+
+ > Thanks for this hint. I would like to add this to the README, do
+ > you have a real example ?
+
+So far, I still do not have any PNP hardware. I always intended to get
+new hardware that I assumed would be PNP, but it then turned out to be
+legacy hardware. So I cannot provide a real-life example.
+
+ > I am now the proud owner of a network card, and thus intend to
+ > expand the README for the module approach (which works for me),
+ > I shall also have a go at the initrd approach, though it looks
+ > potentially more complicated.
+
+I installed an initrd a while ago, when I added initrd support to my
+"etherboot" BOOT-Prom software. It actually is very simple if you know
+what you are doing. I found out, that the easiest way to get started,
+is:
+
+ - get hold of "yard" (yet another rescue disk). It allows you to
+   build a small customized rescue disk.
+
+ - using "yard" build a bare-bones system and keep removing all
+   unneeded parts. Actually, you do not need much more than "/linuxrc",
+   "/dev/zero" and possibly a few other entries in "/dev". Some
+   libraries in "/lib" (probably "libc.so" and possibly "libm.so")
+   unless you link everything statically. The linux loader
+   "/lib/ld.so". A copy of all of the programs that you call from
+   "/linuxrc" (including "/bin/sh" if "/linuxrc" is a shell
+   script). Possibly a mount point for the "/proc" filesystem.
+
+ - when the rescue disk works, use the image to convert is into an
+   initrd.
+
+Good luck,
+
+Markus

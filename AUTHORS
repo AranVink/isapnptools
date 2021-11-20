@@ -1,0 +1,71 @@
+,==================================================================.
+| To conatct the author, see 'Contacting the Author' in the README.|
+`=================================================================='
+
+Credits
+=======
+Thanks to the following for bug reports, fixes, improvements and
+suggestions for improvements to isapnptools.
+
+Bob Clark <rlc@hrb.com>
+Neal Sanche <neal@nsdev.ocunix.on.ca>
+Karsten Keil <pnp@temic-ech.spacenet.de>
+Jim Studt <jim@federated.com)
+Kevin Brooks <kb10@onyx.net>
+Jeff Epler <jepler@inetnebr.com>
+Markus Gutschke <gutschk@uni-muenster.de>
+Andy Sewell <puck@pookhill.demon.co.uk>
+Rildo Pragana <rpragana@acm.org>
+Richard Henderson <rth@cygnus.com>
+Kai Dupke <dupke@koma.han.de>
+Ken Walsby <kwalsby@ttransit.co.uk>
+Rick van Rein <vanrein@cs.utwente.nl>
+James S. Blachly <jblachly@ns.insolwwb.net>
+Steffen Kremser <kremser@nukunuku.swb.de>
+Adam J. Richter <adam@yggdrasil.com>
+Norbert Klasen [ELSA AG] <support@elsa.de>
+Colin Plumb <colin@nyx.net>
+Robert Ekl <rekl@megsinet.net>
+Hidetaka Hikashi <hikashi@mlb.co.jp>
+Hetz Benhamou <hetz@isdn.net.il>
+Rick van Rein < vanrein@cs.utwente.nl>
+Jeffrey Hutzelman <jhutz+@cmu.edu>
+Pavel Roskin <pavel_roskin@geocities.com>
+Eugene <bom@classic.iki.rssi.ru>
+gino <gino@cyberdeck.net>
+Gilles Frattini <gilles@cyberdeck.net>
+Philip Gladstone <pjsg@ix.netcom.com>
+Ytiddo <ytiddo@dicksonstreet.com>
+Omer Zak (sponsored by Aduva to do library work) <omerz@actcom.co.il>
+Ury Segal <ury@cs.huji.ac.il>
+Bill Nottingham <notting@redhat.com>
+Cesar Eduardo Barros <cesarb@web4u.com.br>
+Amir Amit (funded by Aduva to add -o option and get main code into library) <linuxqa@ilhost.com>
+A Guy Called Tyketto <tyketto@wizard.com>
+Alexandre Dussart <adussart@mandrakesoft.com>
+Gabor Z. Papp <gzp@papp.hu>
+Alan M Webb <awebb03@attglobal.net>
+Steve M. Robbins (debian isapnptools maintainer) <steven.robbins@videotron.ca>
+Jeremy Davis <jeremyd@computer.org>
+
+And, for the benefit of email name extractors:
+isapnp1  <postmaster@127.0.0.1>
+isapnp2  <root@127.0.0.1>
+isapnp3  <webmaster@127.0.0.1>
+antispam <uce@ftc.gov>
+
+
+WARNING:  by sending unsolicited commercial/political/religious
+          E-mail messages (known also as "spam") to any E-mail address
+          mentioned in this file, you irrevocably agree to pay the
+          recipient US$500.- (plus any legal expenses incurred while
+          trying to collect the amount due) per unsolicited
+          commercial/political/religious E-mail message - for
+          the service of receiving your E-mail message.
+
+WARNING:  spam will also be sent to uce@ftc.gov.
+
+Also thanks to Lorenzo Bettini for indicating how to add getopt_long
+on systems without it in their standard library. The sources were
+pulled from gengetopt-2.1, and getopt.c modified to add <string.h>.
+

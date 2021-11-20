@@ -1,0 +1,49 @@
+README for DOS
+==============
+
+The DOS port uses djgpp. If you want to get djgpp, or find out more, see
+http://www.delorie.com/djgpp/v2faq/.
+
+In the FAQ above are included instructions on how to cross-compile for
+DOS using the djgpp libraries etc, which is how the executables in the
+binary distribution were made.
+
+If you want to make a real mode DOS program, see README.borland.
+
+Binary won't run
+----------------
+Djgpp executables require a DPMI server to be running, this means
+running in a DOS box under windows for example. A free DPMI server
+is available from any of the sources of djgpp, the file you want
+has a name such as v2misc/csdpmi1b.zip. See the FAQ for details.
+
+Examining devices under Win95
+-----------------------------
+To find the readport address under win95, go to
+My Computer -> Properties -> Device Manager -> System devices ->
+IO read data port for ISA Plug & Play enumerator -> Properties ->
+Resources.
+
+This will give an address range, for example 0270-0273. The address
+to use is the last one, ie 0x273.
+
+To get the devices' resource data, use
+
+pnpdump 0x273
+
+where 0x273 is the readport address as determined above.
+
+Then follow the example in the README to see how to generate a
+script for isapnp to dump the existing values, or else just
+edit the pnpdump output with reference to the device resource
+values found in the Device Manager, device, properties, resources.
+
+Transfer the resulting script to your Linux filesystem, and
+configure your devices as normal (see INSTALL).
+
+Using isapnp.exe with loadlin
+-----------------------------
+If you boot Linux from DOS using loadlin, you can also run the DOS
+version of isapnp before booting Linux. This would allow you to use
+normal compiled in drivers.
+
