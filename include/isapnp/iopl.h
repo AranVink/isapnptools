@@ -45,25 +45,14 @@ extern "C" {
 #endif
 
 /****************************************************************************/
-#ifdef __DJGPP__
-#if !defined __TURBOC__ && !defined __BORLANDC__
-#include <inlines/pc.h>
-#endif
+#if defined(__TURBOC__) || defined(__BORLANDC__)
 #include <dos.h>
-#else
-#ifndef _OS2_
-#  if defined __GLIBC__ && __GLIBC__ >= 2
-#    include <sys/io.h>
-#  else
-#    ifdef _AXP_
-#       include <sys/io.h>
-#    else
-#       include <asm/io.h>
-#    endif
-#  endif	      	   /* __GLIBC__ */
-#else
+#elif defined(__DJGPP__)
+#include <inlines/pc.h>
+#elif defined(_OS2_)
 #include <sys/hw.h>
-#endif /* _OS2_ */
+#else
+#include <sys/io.h>
 #endif
 
 /****************************************************************************/
