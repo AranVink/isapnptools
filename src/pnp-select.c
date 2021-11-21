@@ -12,8 +12,8 @@
 
 static char Id[] __attribute__((unused)) = "$Id: pnp-select.c,v 0.7 2001/04/30 21:52:40 fox Exp $";
 
-#include <malloc.h>
-/* malloc.h is needed only for declaring NULL */
+#include <stddef.h>
+/* stddef.h for NULL */
 
 #include <isapnp/resource.h>
 #include <isapnp/pnp.h>
