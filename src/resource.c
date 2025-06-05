@@ -285,7 +285,7 @@ int allocate_pci_resources_old( void )
 void allocate_pci_resources( void )
 {
    char *line = 0;
-   int lineMax = 0;
+   size_t lineMax = 0;
 
    FILE *fp = fopen( "/proc/bus/pci/devices", "rt" );
    if( !fp )
@@ -354,7 +354,7 @@ alloc_system_resources(void) {
 	int io_end;
     /* Avoid allocating DMA channels used by other devices in /proc. */
     if ((input = fopen("/proc/interrupts", "r")) != NULL) {
-      fscanf(input, "%*[^\n]\n"); /* skip first line */
+      (void)fscanf(input, "%*[^\n]\n"); /* skip first line */
       while (fscanf (input, "%d%*[^\n]\n", &interrupt_num) == 1) {
 #if 0
 		  snprintf(progress_report_buf,
