@@ -363,7 +363,7 @@ SetVerbosity(char *s)
 	return 0;
 }
 
-unsigned char serial_identifier[NUM_CARDS+1][IDENT_LEN];
+extern unsigned char serial_identifier[NUM_CARDS+1][IDENT_LEN];
 static char *boardid[NUM_CARDS+1];
 static unsigned long serno[NUM_CARDS+1];
 
