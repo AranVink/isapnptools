@@ -1,0 +1,11 @@
+*.o
+*.a
+*.Po
+*.0t
+Makefile
+config.*
+autom4te.cache/requests
+libtool
+include/stamp-h1
+src/pnpdump
+src/isapnp
