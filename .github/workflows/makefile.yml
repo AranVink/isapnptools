@@ -21,7 +21,7 @@ jobs:
       run: make CFLAGS="-O2 -Wall"
 
     - name: make install
-      run: make install
+      run: sudo make install
 
     - name: make check
       run: make check
